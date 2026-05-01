@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clinical Trial Enrollment Predictor</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,sans-serif;background:#0f172a;color:#e2e8f0}
+.header{background:linear-gradient(135deg,#1e293b,#0f172a);border-bottom:1px solid #1e293b;padding:20px 24px}
+.header h1{font-size:20px;font-weight:700;color:#f8fafc}
+.header p{font-size:13px;color:#64748b;margin-top:4px}
+.container{max-width:920px;margin:0 auto;padding:0 24px}
+.tabs{display:flex;gap:4px;padding-top:16px}
+.tab{padding:8px 20px;border-radius:8px 8px 0 0;border:1px solid transparent;border-bottom:1px solid #334155;background:transparent;color:#64748b;font-size:13px;font-weight:600;cursor:pointer}
+.tab.active{border-color:#334155;border-bottom-color:#1e293b;background:#1e293b;color:#f8fafc;z-index:2;margin-bottom:-1px}
+.panel{background:#1e293b;border:1px solid #334155;border-radius:0 8px 8px 8px;padding:24px;margin-bottom:32px}
+.panel[hidden]{display:none}
+.section-title{font-size:14px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px}
+.predict-grid{display:grid;grid-template-columns:1fr 280px;gap:24px}
+@media(max-width:700px){.predict-grid{grid-template-columns:1fr}}
+.chip-group{display:flex;gap:6px;margin-bottom:12px}
+.chip{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid #334155;background:transparent;color:#64748b;cursor:pointer}
+.chip.active{border-color:#3b82f6;background:rgba(59,130,246,.12);color:#60a5fa}
+.slider-row{margin-bottom:14px}
+.slider-label{display:flex;justify-content:space-between;margin-bottom:4px}
+.slider-label span{font-size:12px;color:#94a3b8}
+.slider-label strong{font-size:12px;color:#e2e8f0}
+input[type=range]{width:100%;accent-color:#3b82f6;cursor:pointer}
+.result-card{border-radius:12px;padding:24px;text-align:center;border:2px solid}
+.result-icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;font-weight:800}
+.result-score{font-size:32px;font-weight:800}
+.result-label{font-size:14px;font-weight:700;margin-top:4px}
+.result-sub{font-size:11px;color:#64748b;margin-top:8px}
+.summary-box{background:#0f172a;border-radius:8px;padding:16px;margin-top:12px;font-size:12px;color:#94a3b8}
+.summary-box .title{font-weight:700;margin-bottom:8px;color:#cbd5e1}
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.summary-grid .val{text-align:right;color:#e2e8f0}
+.divider{border-top:1px solid #334155;margin:16px 0;padding-top:16px}
+.model-row{display:grid;grid-template-columns:150px 1fr 70px 70px;align-items:center;padding:10px 12px;border-radius:8px;background:#0f172a;margin-bottom:6px}
+.model-row.best{background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.25)}
+.model-name{font-size:13px;font-weight:600;color:#e2e8f0;display:flex;align-items:center;gap:8px}
+.badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:700}
+.badge.base{background:#334155;color:#94a3b8}.badge.tuned{background:rgba(5,150,105,.2);color:#34d399}.badge.nn{background:rgba(139,92,246,.2);color:#a78bfa}
+.bar-bg{height:6px;border-radius:3px;background:#334155;overflow:hidden;margin:0 12px}
+.bar-fill{height:100%;border-radius:3px}
+.model-metric{font-size:12px;color:#94a3b8;text-align:right}
+.model-f1{font-size:13px;font-weight:700;color:#e2e8f0;text-align:right}
+.note-box{margin-top:20px;padding:16px;background:#0f172a;border-radius:8px;font-size:12px;color:#94a3b8;line-height:1.6}
+.note-box b{color:#cbd5e1}
+.feat-row{display:grid;grid-template-columns:160px 1fr 50px;align-items:center;gap:12px;margin-bottom:6px}
+.feat-name{font-size:12px;color:#94a3b8}.feat-name.top{color:#e2e8f0;font-weight:700}
+.feat-bar-bg{height:8px;border-radius:4px;background:#334155;overflow:hidden}
+.feat-bar-fill{height:100%;border-radius:4px}
+.feat-pct{font-size:12px;color:#94a3b8;text-align:right}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}
+.help-box{background:#ecfdf5;border-radius:8px;padding:16px}
+.help-box .box-title{font-size:12px;font-weight:700;color:#059669;margin-bottom:8px}
+.help-box .box-content{font-size:12px;color:#065f46;line-height:1.8}
+.hurt-box{background:#fef2f2;border-radius:8px;padding:16px}
+.hurt-box .box-title{font-size:12px;font-weight:700;color:#dc2626;margin-bottom:8px}
+.hurt-box .box-content{font-size:12px;color:#991b1b;line-height:1.8}
+.footer{text-align:center;padding:16px 24px;font-size:11px;color:#475569}
+.model-badge{display:inline-block;background:#059669;color:white;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:700;margin-left:8px}
+</style>
+</head>
+<body>
+<div class="header"><div class="container">
+<h1>Clinical Trial Enrollment Predictor <span class="model-badge">REAL MODEL</span></h1>
+<p>Uses the actual trained Decision Tree exported from Python — predictions match the model exactly</p>
+</div></div>
+<div class="container">
+<div class="tabs">
+<button class="tab active" onclick="showTab('predict')">Predict</button>
+<button class="tab" onclick="showTab('models')">Models</button>
+<button class="tab" onclick="showTab('features')">Features</button>
+</div>
+
+<div class="panel" id="panel-predict">
+<div class="predict-grid"><div>
+<div class="section-title">Trial Protocol</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+<div><div class="slider-label"><span>Phase</span></div>
+<div class="chip-group"><button class="chip active" id="chip-p2" onclick="setPhase(false)">Phase 2</button><button class="chip" id="chip-p3" onclick="setPhase(true)">Phase 3</button></div></div>
+<div><div class="slider-label"><span>Sponsor</span></div>
+<div class="chip-group"><button class="chip" id="chip-acad" onclick="setSponsor(false)">Academic</button><button class="chip active" id="chip-ind" onclick="setSponsor(true)">Industry</button></div></div>
+</div>
+
+<div style="background:#0f172a;border-radius:8px;padding:12px;margin-bottom:14px;border:1px solid #3b82f640">
+<div class="slider-label"><span style="color:#60a5fa;font-weight:700">&#11088; Target Enrollment (total patients)</span><strong id="val-enroll" style="color:#60a5fa">200</strong></div>
+<input type="range" min="5" max="5000" step="5" value="200" id="sl-enroll" oninput="update()">
+<div style="font-size:10px;color:#64748b;margin-top:4px">Enrollment per site (auto-calculated): <strong id="val-eps" style="color:#60a5fa">10.0</strong> patients/site — #1 predictor (35% importance)</div>
+</div>
+
+<div class="slider-row"><div class="slider-label"><span>Number of Sites</span><strong id="val-sites">20</strong></div>
+<input type="range" min="1" max="500" value="20" id="sl-sites" oninput="update()"></div>
+<div class="slider-row"><div class="slider-label"><span>Countries</span><strong id="val-countries">3</strong></div>
+<input type="range" min="1" max="40" value="3" id="sl-countries" oninput="update()"></div>
+<div class="slider-row"><div class="slider-label"><span>Study Duration (days)</span><strong id="val-duration">900</strong></div>
+<input type="range" min="30" max="3650" step="30" value="900" id="sl-duration" oninput="update()"></div>
+<div class="slider-row"><div class="slider-label"><span>Treatment Arms</span><strong id="val-arms">2</strong></div>
+<input type="range" min="1" max="6" value="2" id="sl-arms" oninput="update()"></div>
+<div class="slider-row"><div class="slider-label"><span>Interventions</span><strong id="val-interv">2</strong></div>
+<input type="range" min="1" max="10" value="2" id="sl-interv" oninput="update()"></div>
+
+<div class="divider">
+<div class="section-title">Eligibility Criteria</div>
+<div class="slider-row"><div class="slider-label"><span>Inclusion Criteria</span><strong id="val-incl">5</strong></div>
+<input type="range" min="0" max="30" value="5" id="sl-incl" oninput="update()"></div>
+<div class="slider-row"><div class="slider-label"><span>Exclusion Criteria</span><strong id="val-excl">7</strong></div>
+<input type="range" min="0" max="30" value="7" id="sl-excl" oninput="update()"></div>
+<div class="slider-row"><div class="slider-label"><span>Criteria Text Length</span><strong id="val-critlen">1500</strong></div>
+<input type="range" min="50" max="10000" step="50" value="1500" id="sl-critlen" oninput="update()"></div>
+<div class="slider-row"><div class="slider-label"><span>Min Age</span><strong id="val-minage">18</strong></div>
+<input type="range" min="0" max="90" value="18" id="sl-minage" oninput="update()"></div>
+<div class="slider-row"><div class="slider-label"><span>Max Age</span><strong id="val-maxage">75</strong></div>
+<input type="range" min="0" max="100" value="75" id="sl-maxage" oninput="update()"></div>
+<div style="margin-top:8px"><div class="slider-label"><span>Sex</span></div>
+<div class="chip-group"><button class="chip active" id="chip-sexall" onclick="setSex(false)">All</button><button class="chip" id="chip-sexr" onclick="setSex(true)">Restricted</button></div></div>
+<div style="margin-top:8px"><div class="slider-label"><span>Therapeutic Area</span></div>
+<div class="chip-group" style="flex-wrap:wrap">
+<button class="chip" id="chip-cancer" onclick="toggleCond('cancer')">Cancer</button>
+<button class="chip" id="chip-diabetes" onclick="toggleCond('diabetes')">Diabetes</button>
+<button class="chip" id="chip-hiv" onclick="toggleCond('hiv')">HIV</button>
+<button class="chip" id="chip-asthma" onclick="toggleCond('asthma')">Asthma</button>
+<button class="chip" id="chip-pain" onclick="toggleCond('pain')">Pain</button>
+<button class="chip" id="chip-hypertension" onclick="toggleCond('hypertension')">Hypertension</button>
+<button class="chip" id="chip-depression" onclick="toggleCond('depression')">Depression</button>
+<button class="chip" id="chip-schizophrenia" onclick="toggleCond('schizophrenia')">Schizophrenia</button>
+</div></div>
+</div>
+</div>
+<div>
+<div class="result-card" id="result-card"><div class="result-icon" id="result-icon"></div>
+<div class="result-score" id="result-score"></div>
+<div class="result-label" id="result-label"></div>
+<div class="result-sub">Enrollment Success Probability</div></div>
+<div class="summary-box"><div class="title">Protocol Summary</div>
+<div class="summary-grid">
+<span>Phase</span><span class="val" id="sum-phase">2</span>
+<span>Sites</span><span class="val" id="sum-sites">20</span>
+<span>Duration</span><span class="val" id="sum-dur">30mo</span>
+<span>Total criteria</span><span class="val" id="sum-crit">12</span>
+<span>Enroll/site</span><span class="val" id="sum-eps">10.0</span>
+</div></div>
+</div></div></div>
+
+<div class="panel" id="panel-models" hidden>
+<div class="section-title">8 Models Compared</div><div id="models-list"></div>
+<div class="note-box"><b>Key finding:</b> Tree-based models dominate. Tuned Decision Tree achieves 97.4% F1. Neural network (MLP 64) matches Random Forest. Naive Bayes worst due to violated independence assumptions.</div>
+</div>
+
+<div class="panel" id="panel-features" hidden>
+<div class="section-title">Feature Importance — Random Forest</div><div id="features-list"></div>
+<div class="two-col">
+<div class="help-box"><div class="box-title">Factors that HELP</div><div class="box-content">&#8226; enrollment_per_site (+6.07)<br>&#8226; num_sites (+4.32)<br>&#8226; is_phase2 (+0.41)<br>&#8226; has_multiple_arms (+0.38)</div></div>
+<div class="hurt-box"><div class="box-title">Factors that HURT</div><div class="box-content">&#8226; is_industry_sponsored (−0.55)<br>&#8226; is_phase3 (−0.48)<br>&#8226; num_countries (−0.31)</div></div>
+</div>
+<div class="note-box" style="margin-top:16px"><b>Interpretation:</b> Top two features account for 55% of importance. R² = 0.56 from regression shows protocol features explain 56% of enrollment variance.</div>
+</div>
+</div>
+<div class="footer">CS 506 Final Project — AACT/ClinicalTrials.gov — 9,517 Phase 2/3 Trials — Real model predictions</div>
+
+<script>
+const MODEL = {"features": ["duration_days", "num_sites", "num_countries", "num_arms", "num_interventions", "enrollment_per_site", "has_multiple_arms", "num_inclusion_criteria", "num_exclusion_criteria", "total_criteria", "criteria_text_length", "min_age_years", "max_age_years", "age_range_years", "sex_restricted", "is_phase2", "is_phase3", "is_industry_sponsored", "is_cancer", "is_diabetes", "is_hiv", "is_asthma", "is_pain", "is_hypertension", "is_depression", "is_schizophrenia"], "scaler": {"mean": {"duration_days": 1155.500985, "num_sites": 20.833049, "num_countries": 2.711677, "num_arms": 2.246289, "num_interventions": 2.311704, "enrollment_per_site": 94.537905, "has_multiple_arms": 0.74294, "num_inclusion_criteria": 4.80218, "num_exclusion_criteria": 6.837777, "total_criteria": 11.639958, "criteria_text_length": 2112.494286, "min_age_years": 19.231415, "max_age_years": 62.737605, "age_range_years": 45.053085, "sex_restricted": 0.129515, "is_phase2": 0.594378, "is_phase3": 0.467096, "is_industry_sponsored": 0.516354, "is_cancer": 0.120846, "is_diabetes": 0.039144, "is_hiv": 0.018258, "is_asthma": 0.015106, "is_pain": 0.029029, "is_hypertension": 0.01944, "is_depression": 0.007881, "is_schizophrenia": 0.008407}, "std": {"duration_days": 969.611756, "num_sites": 49.911595, "num_countries": 4.716919, "num_arms": 1.408686, "num_interventions": 1.447869, "enrollment_per_site": 246.426647, "has_multiple_arms": 0.437013, "num_inclusion_criteria": 5.909538, "num_exclusion_criteria": 7.321613, "total_criteria": 10.729935, "criteria_text_length": 1910.749943, "min_age_years": 10.18828, "max_age_years": 18.823736, "age_range_years": 15.328238, "sex_restricted": 0.335769, "is_phase2": 0.491012, "is_phase3": 0.498916, "is_industry_sponsored": 0.499732, "is_cancer": 0.325948, "is_diabetes": 0.193936, "is_hiv": 0.133884, "is_asthma": 0.121974, "is_pain": 0.167889, "is_hypertension": 0.138067, "is_depression": 0.088426, "is_schizophrenia": 0.091302}}, "tree": {"type": "split", "feature": "enrollment_per_site", "feature_index": 5, "threshold": -0.070087, "left": {"type": "split", "feature": "num_sites", "feature_index": 1, "threshold": -0.146921, "left": {"type": "split", "feature": "enrollment_per_site", "feature_index": 5, "threshold": -0.241267, "left": {"type": "split", "feature": "num_sites", "feature_index": 1, "threshold": -0.387346, "left": {"type": "leaf", "prediction": 0, "probability": 0.0, "samples": 1}, "right": {"type": "split", "feature": "enrollment_per_site", "feature_index": 5, "threshold": -0.352427, "left": {"type": "leaf", "prediction": 0, "probability": 0.121, "samples": 1}, "right": {"type": "leaf", "prediction": 1, "probability": 0.5199, "samples": 1}}}, "right": {"type": "split", "feature": "is_phase3", "feature_index": 16, "threshold": 0.065951, "left": {"type": "split", "feature": "is_industry_sponsored", "feature_index": 17, "threshold": -0.032725, "left": {"type": "leaf", "prediction": 1, "probability": 1.0, "samples": 1}, "right": {"type": "leaf", "prediction": 0, "probability": 0.2836, "samples": 1}}, "right": {"type": "split", "feature": "num_sites", "feature_index": 1, "threshold": -0.387346, "left": {"type": "leaf", "prediction": 0, "probability": 0.05, "samples": 1}, "right": {"type": "leaf", "prediction": 1, "probability": 0.8101, "samples": 1}}}}, "right": {"type": "split", "feature": "enrollment_per_site", "feature_index": 5, "threshold": -0.371895, "left": {"type": "split", "feature": "num_sites", "feature_index": 1, "threshold": 1.07524, "left": {"type": "split", "feature": "is_phase3", "feature_index": 16, "threshold": 0.065951, "left": {"type": "leaf", "prediction": 0, "probability": 0.4502, "samples": 1}, "right": {"type": "leaf", "prediction": 0, "probability": 0.0089, "samples": 1}}, "right": {"type": "split", "feature": "num_sites", "feature_index": 1, "threshold": 2.668056, "left": {"type": "leaf", "prediction": 1, "probability": 0.7262, "samples": 1}, "right": {"type": "leaf", "prediction": 1, "probability": 0.9688, "samples": 1}}}, "right": {"type": "split", "feature": "num_sites", "feature_index": 1, "threshold": 0.273823, "left": {"type": "split", "feature": "is_phase3", "feature_index": 16, "threshold": 0.065951, "left": {"type": "leaf", "prediction": 1, "probability": 0.8928, "samples": 1}, "right": {"type": "leaf", "prediction": 1, "probability": 0.5529, "samples": 1}}, "right": {"type": "split", "feature": "enrollment_per_site", "feature_index": 5, "threshold": -0.36502, "left": {"type": "leaf", "prediction": 1, "probability": 0.8276, "samples": 1}, "right": {"type": "leaf", "prediction": 1, "probability": 0.9789, "samples": 1}}}}}, "right": {"type": "split", "feature": "is_phase2", "feature_index": 15, "threshold": -0.192211, "left": {"type": "split", "feature": "enrollment_per_site", "feature_index": 5, "threshold": 0.657243, "left": {"type": "split", "feature": "is_industry_sponsored", "feature_index": 17, "threshold": -0.032725, "left": {"type": "split", "feature": "enrollment_per_site", "feature_index": 5, "threshold": 0.036368, "left": {"type": "leaf", "prediction": 0, "probability": 0.2455, "samples": 1}, "right": {"type": "leaf", "prediction": 1, "probability": 1.0, "samples": 1}}, "right": {"type": "split", "feature": "num_sites", "feature_index": 1, "threshold": -0.387346, "left": {"type": "leaf", "prediction": 0, "probability": 0.0, "samples": 1}, "right": {"type": "leaf", "prediction": 1, "probability": 0.8966, "samples": 1}}}, "right": {"type": "leaf", "prediction": 1, "probability": 1.0, "samples": 1}}, "right": {"type": "split", "feature": "is_phase3", "feature_index": 16, "threshold": 0.065951, "left": {"type": "leaf", "prediction": 1, "probability": 1.0, "samples": 1}, "right": {"type": "split", "feature": "enrollment_per_site", "feature_index": 5, "threshold": 0.078977, "left": {"type": "leaf", "prediction": 1, "probability": 0.9286, "samples": 1}, "right": {"type": "leaf", "prediction": 1, "probability": 1.0, "samples": 1}}}}}, "metadata": {"model": "DecisionTreeClassifier (dashboard version - smoother probabilities)", "params": {"max_depth": 5, "min_samples_leaf": 50}, "train_size": 7613, "test_size": 1904, "accuracy": 0.854, "f1": 0.8843, "note": "Shallower tree for smoother probability estimates in the dashboard. The full tuned model (depth 15, F1=0.974) is used for final results."}};
+
+let isPhase3=false, isIndustry=true, sexRestricted=false;
+let conds={cancer:0,diabetes:0,hiv:0,asthma:0,pain:0,hypertension:0,depression:0,schizophrenia:0};
+
+function predictReal(raw) {
+  const sc={};
+  for (const f of MODEL.features) {
+    const m=MODEL.scaler.mean[f], s=MODEL.scaler.std[f];
+    sc[f] = s>0 ? (raw[f]-m)/s : 0;
+  }
+  let node=MODEL.tree;
+  while(node.type==="split") {
+    node = sc[node.feature]<=node.threshold ? node.left : node.right;
+  }
+  return node.probability;
+}
+
+function update() {
+  const sites=+document.getElementById("sl-sites").value;
+  const enroll=+document.getElementById("sl-enroll").value;
+  const arms=+document.getElementById("sl-arms").value;
+  const incl=+document.getElementById("sl-incl").value;
+  const excl=+document.getElementById("sl-excl").value;
+  const eps = sites>0 ? enroll/sites : 0;
+
+  document.getElementById("val-enroll").textContent=enroll;
+  document.getElementById("val-sites").textContent=sites;
+  document.getElementById("val-countries").textContent=document.getElementById("sl-countries").value;
+  document.getElementById("val-duration").textContent=document.getElementById("sl-duration").value;
+  document.getElementById("val-arms").textContent=arms;
+  document.getElementById("val-interv").textContent=document.getElementById("sl-interv").value;
+  document.getElementById("val-incl").textContent=incl;
+  document.getElementById("val-excl").textContent=excl;
+  document.getElementById("val-critlen").textContent=document.getElementById("sl-critlen").value;
+  document.getElementById("val-minage").textContent=document.getElementById("sl-minage").value;
+  document.getElementById("val-maxage").textContent=document.getElementById("sl-maxage").value;
+  document.getElementById("val-eps").textContent=eps.toFixed(1);
+
+  const raw = {
+    duration_days:+document.getElementById("sl-duration").value,
+    num_sites:sites, num_countries:+document.getElementById("sl-countries").value,
+    num_arms:arms, num_interventions:+document.getElementById("sl-interv").value,
+    enrollment_per_site:eps, has_multiple_arms:arms>1?1:0,
+    num_inclusion_criteria:incl, num_exclusion_criteria:excl,
+    total_criteria:incl+excl,
+    criteria_text_length:+document.getElementById("sl-critlen").value,
+    min_age_years:+document.getElementById("sl-minage").value,
+    max_age_years:+document.getElementById("sl-maxage").value,
+    age_range_years:+document.getElementById("sl-maxage").value - +document.getElementById("sl-minage").value,
+    sex_restricted:sexRestricted?1:0,
+    is_phase2:isPhase3?0:1, is_phase3:isPhase3?1:0,
+    is_industry_sponsored:isIndustry?1:0,
+    is_cancer:conds.cancer, is_diabetes:conds.diabetes, is_hiv:conds.hiv,
+    is_asthma:conds.asthma, is_pain:conds.pain, is_hypertension:conds.hypertension,
+    is_depression:conds.depression, is_schizophrenia:conds.schizophrenia,
+  };
+
+  const prob=predictReal(raw);
+  const pct=Math.round(prob*100);
+  let color,bg,label,emoji;
+  if(prob>=0.75){color="#059669";bg="#ecfdf5";label="Low Risk";emoji="\u2713";}
+  else if(prob>=0.40){color="#d97706";bg="#fffbeb";label="Moderate";emoji="!";}
+  else{color="#dc2626";bg="#fef2f2";label="High Risk";emoji="\u2717";}
+
+  const card=document.getElementById("result-card");
+  card.style.background=bg; card.style.borderColor=color+"40";
+  document.getElementById("result-icon").style.background=color+"20";
+  document.getElementById("result-icon").style.color=color;
+  document.getElementById("result-icon").textContent=emoji;
+  document.getElementById("result-score").style.color=color;
+  document.getElementById("result-score").textContent=pct+"%";
+  document.getElementById("result-label").style.color=color;
+  document.getElementById("result-label").textContent=label;
+  document.getElementById("sum-phase").textContent=isPhase3?"3":"2";
+  document.getElementById("sum-sites").textContent=sites;
+  document.getElementById("sum-dur").textContent=Math.round(+document.getElementById("sl-duration").value/30)+"mo";
+  document.getElementById("sum-crit").textContent=incl+excl;
+  document.getElementById("sum-eps").textContent=eps.toFixed(1);
+}
+
+function showTab(n){document.querySelectorAll(".panel").forEach(p=>p.hidden=true);document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));document.getElementById("panel-"+n).hidden=false;event.target.classList.add("active")}
+function setPhase(p){isPhase3=p;document.getElementById("chip-p2").classList.toggle("active",!p);document.getElementById("chip-p3").classList.toggle("active",p);update()}
+function setSponsor(i){isIndustry=i;document.getElementById("chip-acad").classList.toggle("active",!i);document.getElementById("chip-ind").classList.toggle("active",i);update()}
+function setSex(r){sexRestricted=r;document.getElementById("chip-sexall").classList.toggle("active",!r);document.getElementById("chip-sexr").classList.toggle("active",r);update()}
+function toggleCond(c){conds[c]=conds[c]?0:1;document.getElementById("chip-"+c).classList.toggle("active",conds[c]);update()}
+
+const models=[{name:"DT (tuned)",f1:.973,acc:.969,type:"tuned"},{name:"Decision Tree",f1:.958,acc:.950,type:"base"},{name:"RF (tuned)",f1:.952,acc:.943,type:"tuned"},{name:"Random Forest",f1:.919,acc:.903,type:"base"},{name:"MLP (64)",f1:.916,acc:.899,type:"nn"},{name:"Logistic Reg.",f1:.844,acc:.818,type:"base"},{name:"KNN (k=7)",f1:.755,acc:.713,type:"base"},{name:"Naive Bayes",f1:.609,acc:.641,type:"base"}];
+const feats=[{name:"enrollment_per_site",imp:.350},{name:"num_sites",imp:.204},{name:"duration_days",imp:.052},{name:"num_arms",imp:.045},{name:"has_multiple_arms",imp:.038},{name:"num_countries",imp:.034},{name:"is_industry",imp:.033},{name:"is_phase2",imp:.031},{name:"is_phase3",imp:.030},{name:"num_interventions",imp:.029}];
+const ml=document.getElementById("models-list");
+const cs={base:"#3b82f6",tuned:"#059669",nn:"#8b5cf6"};
+const bs={base:"BASE",tuned:"TUNED",nn:"NN"};
+models.forEach((m,i)=>{ml.innerHTML+=`<div class="model-row ${i===0?'best':''}"><div class="model-name"><span class="badge ${m.type}">${bs[m.type]}</span>${m.name}</div><div class="bar-bg"><div class="bar-fill" style="width:${m.f1*100}%;background:${cs[m.type]}"></div></div><div class="model-metric">Acc ${(m.acc*100).toFixed(1)}%</div><div class="model-f1">F1 ${m.f1.toFixed(3)}</div></div>`});
+const fl=document.getElementById("features-list");
+feats.forEach((f,i)=>{const c=i===0?"#3b82f6":i===1?"#60a5fa":"#94a3b8";fl.innerHTML+=`<div class="feat-row"><span class="feat-name ${i<2?'top':''}">${f.name}</span><div class="feat-bar-bg"><div class="feat-bar-fill" style="width:${(f.imp/.35)*100}%;background:${c}"></div></div><span class="feat-pct">${(f.imp*100).toFixed(1)}%</span></div>`});
+
+update();
+</script>
+</body></html>
