@@ -1,0 +1,46 @@
+{
+  "regression": {
+    "Linear Regression": {
+      "r2": 0.5596,
+      "rmse": 0.8121
+    },
+    "Ridge Regression": {
+      "r2": 0.5596,
+      "rmse": 0.8121
+    },
+    "Lasso Regression": {
+      "r2": 0.5269,
+      "rmse": 0.8418
+    }
+  },
+  "neural_networks": {
+    "MLP (64)": {
+      "accuracy": 0.8992,
+      "f1": 0.9157
+    },
+    "MLP (128, 64)": {
+      "accuracy": 0.8792,
+      "f1": 0.8978
+    },
+    "MLP (128, 64, 32)": {
+      "accuracy": 0.8687,
+      "f1": 0.8903
+    }
+  },
+  "tuned_decision_tree": {
+    "params": {
+      "max_depth": 15,
+      "min_samples_leaf": 5,
+      "min_samples_split": 2
+    },
+    "f1": 0.9735
+  },
+  "tuned_random_forest": {
+    "params": {
+      "max_depth": null,
+      "min_samples_split": 2,
+      "n_estimators": 100
+    },
+    "f1": 0.9519
+  }
+}

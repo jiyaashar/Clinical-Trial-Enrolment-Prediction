@@ -1,0 +1,56 @@
+{
+  "per_feature_impact": {
+    "has_multiple_arms": 20.756,
+    "is_phase2": 20.209,
+    "is_cancer": 7.602,
+    "num_arms": 3.514,
+    "is_hiv": 2.104,
+    "num_sites": 2.058,
+    "num_interventions": 2.029,
+    "enrollment_per_site": 0.606,
+    "min_age_years": 0.127,
+    "max_age_years": 0.124,
+    "num_exclusion_criteria": 0.117,
+    "duration_days": 0.004,
+    "total_criteria": 0.0,
+    "criteria_text_length": 0.0,
+    "num_inclusion_criteria": -0.174,
+    "age_range_years": -0.202,
+    "sex_restricted": -0.547,
+    "is_depression": -0.749,
+    "is_pain": -1.142,
+    "num_countries": -1.501,
+    "is_diabetes": -2.669,
+    "is_schizophrenia": -8.83,
+    "is_asthma": -9.768,
+    "is_hypertension": -10.816,
+    "is_phase3": -24.14,
+    "is_industry_sponsored": -27.323
+  },
+  "therapeutic_area_success_rates": {
+    "HIV": 0.653,
+    "Cancer": 0.646,
+    "Diabetes": 0.609,
+    "Depression": 0.607,
+    "Other": 0.582,
+    "Pain": 0.571,
+    "Hypertension": 0.55,
+    "Asthma": 0.541,
+    "Schizophrenia": 0.519
+  },
+  "risk_score_validation": {
+    "score_leq_30_success_rate": 0.119,
+    "score_geq_70_success_rate": 0.932
+  },
+  "optimal_sites": {
+    "Cancer": "100+",
+    "Diabetes": "100+",
+    "HIV": "11-25",
+    "Asthma": "51-100",
+    "Pain": "26-50",
+    "Hypertension": "51-100",
+    "Depression": "2-5",
+    "Schizophrenia": "1",
+    "All Trials": "100+"
+  }
+}

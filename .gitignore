@@ -1,0 +1,14 @@
+# AACT raw data files (2+ GB — redownload from https://aact.ctti-clinicaltrials.org/downloads)
+data/*.txt
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.zip
