@@ -327,3 +327,17 @@ Factors that hurt enrollment (LR coefficients): is_industry_sponsored (−0.55),
 | `plot18` | Risk score validation — histogram + calibration curve |
 | `plot19` | Success rate by number of sites — more sites = better |
 
+### Interactive Dashboard 
+An interactive dashboard that toggles with numbers of major features and gives an estimate of what the prediction could be was created that can be found as "dashboard.html". 
+
+However, it does have limitations pertaining to the predicitions and outcomes.
+The current implementation uses a shallower Decision Tree (depth 5) for smoother probability estimates, which sacrifices some accuracy compared to the full tuned model (depth 15). A better approach would be to export a Random Forest or Logistic Regression model instead, as these naturally produce smoother probability distributions across the feature space. The dashboard would also benefit from showing confidence intervals around its predictions rather than a single point estimate, and from incorporating real-time data on currently recruiting competing trials to adjust the enrollment difficulty dynamically.
+
+
+### Future Directions
+While the current model achieves strong classification performance (97.4% F1), several improvements would make it more practically useful.
+The most significant issue is the target variable proxy. We compare each trial's enrollment to its phase/sponsor group median because the AACT database doesn't separate planned vs actual enrollment for completed trials. Accessing the original planned enrollment numbers either through the ClinicalTrials.gov protocol amendments or through industry partnerships would give us a true target and likely produce more nuanced predictions. Related to this, enrollment_per_site is currently derived from actual enrollment, creating a circularity where the model partially predicts the outcome from itself. In a production deployment, this feature would need to be replaced with historical site-level recruitment rates from previous trials at those same facilities, which organizations like Medidata and IQVIA track but don't make publicly available.
+
+The model could also benefit from additional features not available in the current dataset: the recruitment budget allocated per site, the number of competing trials recruiting similar patients at the same time, the geographic density of eligible patients near each site, the experience level of site investigators, and the specific drug mechanism (which affects patient willingness to participate). Natural language processing on the full protocol text beyond our simple criteria counting could capture protocol complexity more richly.
+
+Finally, the model was trained on all completed Phase 2/3 trials regardless of when they ran. A time-aware model that accounts for shifts in enrollment patterns over the last two decades such as the increasing difficulty of recruitment due to trial proliferation and the impact of decentralized trial designs post-COVID would likely generalize better to trials starting today.
