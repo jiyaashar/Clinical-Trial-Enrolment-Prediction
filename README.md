@@ -121,7 +121,7 @@ Trial sponsors typically invest $10M–$50M before the first patient is enrolled
 
 ## Data Collection
 
-**Source:** [AACT Database](https://aact.ctti-clinicaltrials.org/downloads) — a publicly available relational database maintained by the Clinical Trials Transformation Initiative, mirroring all data from ClinicalTrials.gov. (contains key factors like dates of the study, site, number of enrollees, countries, disease, etc).
+**Source:** [AACT Database](https://aact.ctti-clinicaltrials.org/downloads) — a publicly available relational database maintained by the Clinical Trials Transformation Initiative, mirroring all data from ClinicalTrials.gov. (contains files like facilities, ids, descriptions, designs, etc).
 
 **Method:** Downloaded the "Flat Text Files" export (~2.2 GB). Script `load_data.py` reads 7 tables (studies, eligibilities, facilities, sponsors, design_groups, interventions, conditions), filters them, and merges by trial ID (`nct_id`).
 
