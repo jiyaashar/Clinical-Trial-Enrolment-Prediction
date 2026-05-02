@@ -150,7 +150,7 @@ Implemented in `clean_data.py`. The script produces a data quality report before
 | Unparseable dates | 261 | Dropped | Need both dates for duration calculation |
 | Unreasonable duration (<7d or >20yr) | 26 | Dropped | Likely data entry errors |
 | Enrollment outliers (<1st or >99th pctile) | 196 | Dropped | Extreme values distort models |
-| `why_stopped` 100% missing | All | Ignored column | Expected — all trials are completed |
+| `why_stopped` 100% missing | All | Ignored column | Expected - all trials are completed |
 | `maximum_age` 49% missing | 4,945 | Filled with median (65) in feature engineering | Many trials don't set upper age limit |
 
 Categorical fields (phase, sponsor class, sex) were uppercased and stripped of whitespace for consistency.
@@ -257,21 +257,21 @@ Factors that hurt enrollment (LR coefficients): is_industry_sponsored (−0.55),
 
 ### Actionable Recommendations
 
-1. **Add more sites** — each additional site improves success probability by 2.06 percentage points. Failed trials have median 1 site vs 4 for successes.
-2. **Simplify eligibility** — reducing exclusion criteria from 15 to 8 improves probability by ~0.8 percentage points.
-3. **Plan adequate duration** — successful trials run median 915 days vs 793 for failures.
-4. **Therapeutic area matters** — HIV (65.3%) and Cancer (64.6%) have highest success rates. Schizophrenia (51.9%) is hardest.
-5. **Optimal site count varies** — Cancer/Diabetes trials need 100+ sites. Depression peaks at 2-5 sites.
+1. **Add more sites** - each additional site improves success probability by 2.06 percentage points. Failed trials have median 1 site vs 4 for successes.
+2. **Simplify eligibility** - reducing exclusion criteria from 15 to 8 improves probability by ~0.8 percentage points.
+3. **Plan adequate duration** - successful trials run median 915 days vs 793 for failures.
+4. **Therapeutic area matters** - HIV (65.3%) and Cancer (64.6%) have highest success rates. Schizophrenia (51.9%) is hardest.
+5. **Optimal site count varies** - Cancer/Diabetes trials need 100+ sites. Depression peaks at 2-5 sites.
 
 ---
 
 ## Limitations
 
-1. **Target variable is a proxy** — we don't have true planned enrollment, so we compare to group median. With real target enrollment data, accuracy would likely be lower.
-2. **enrollment_per_site has data leakage risk** — it's derived from actual enrollment (the outcome). In production, this would be estimated from historical site performance.
+1. **Target variable is a proxy** - we don't have true planned enrollment, so we compare to group median. With real target enrollment data, accuracy would likely be lower.
+2. **enrollment_per_site has data leakage risk** - it's derived from actual enrollment (the outcome). In production, this would be estimated from historical site performance.
 3. **Regression R² = 0.56** — protocol features alone can't fully predict enrollment. Recruitment budget, competing trials, and site experience are unmeasured factors.
-4. **Sample size** — we used 10,000 of 55,000 available trials for development speed.
-5. **Eligibility criteria parsing** — counting `~*` delimiters is heuristic; some criteria may be miscounted.
+4. **Sample size** - we used 10,000 of 55,000 available trials for development speed.
+5. **Eligibility criteria parsing** - counting `~*` delimiters is heuristic; some criteria may be miscounted.
 
 ---
 
@@ -282,39 +282,39 @@ Factors that hurt enrollment (LR coefficients): is_industry_sponsored (−0.55),
 | Plot | What It Shows |
 |------|--------------|
 | `plot1` | Enrollment distribution — heavily right-skewed, median 103 |
-| `plot2` | Enrollment by phase — Phase 3 enrolls ~4× more than Phase 2 |
-| `plot3` | Enrollment by sponsor — industry trials have highest median (175) |
-| `plot4` | Sites vs enrollment — clear positive log-log relationship |
-| `plot5` | Top 15 conditions — breast cancer and diabetes most studied |
-| `plot6` | Correlation heatmap — num_sites and num_countries correlated at 0.64 |
-| `plot7` | K-Means clustering (k=3) — natural groupings of small/medium/large trials |
-| `plot8` | Elbow method — k=3 is reasonable, no sharp elbow |
+| `plot2` | Enrollment by phase - Phase 3 enrolls ~4× more than Phase 2 |
+| `plot3` | Enrollment by sponsor - industry trials have highest median (175) |
+| `plot4` | Sites vs enrollment - clear positive log-log relationship |
+| `plot5` | Top 15 conditions - breast cancer and diabetes most studied |
+| `plot6` | Correlation heatmap - num_sites and num_countries correlated at 0.64 |
+| `plot7` | K-Means clustering (k=3) - natural groupings of small/medium/large trials |
+| `plot8` | Elbow method - k=3 is reasonable, no sharp elbow |
 
 ### Model Plots (`train_models.py`)
 
 | Plot | What It Shows |
 |------|--------------|
-| `plot9` | 5-model comparison across accuracy, precision, recall, F1 |
-| `plot10` | Confusion matrices — Decision Tree has only 95 errors out of 1,904 |
-| `plot11` | Random Forest feature importance — enrollment_per_site (35%) and num_sites (20%) dominate |
-| `plot12` | Logistic Regression coefficients — green (helps) vs red (hurts enrollment) |
-| `plot13` | Cross-validation accuracy with error bars — confirms no overfitting |
+| `plot9` | 5 model comparison across accuracy, precision, recall, F1 |
+| `plot10` | Confusion matrices - Decision Tree has only 95 errors out of 1,904 |
+| `plot11` | Random Forest feature importance - enrollment_per_site (35%) and num_sites (20%) dominate |
+| `plot12` | Logistic Regression coefficients - green (helps) vs red (hurts enrollment) |
+| `plot13` | Cross-validation accuracy with error bars confirms no overfitting |
 
 ### Advanced Plots (`advanced_models.py`)
 
 | Plot | What It Shows |
 |------|--------------|
 | `plot14` | Regression predicted vs actual + residual plot (R² = 0.56) |
-| `plot15` | Neural network confusion matrices — 3 architectures compared |
-| `plot16` | All 8 models ranked by F1 — tuned Decision Tree wins at 0.974 |
+| `plot15` | Neural network confusion matrices - 3 architectures compared |
+| `plot16` | All 8 models ranked by F1 - tuned Decision Tree wins at 0.974 |
 
 ### Insights Plots (`insights.py`)
 
 | Plot | What It Shows |
 |------|--------------|
 | `plot17` | Therapeutic area success rates colored by K-Means clustering |
-| `plot18` | Risk score validation — histogram + calibration curve |
-| `plot19` | Success rate by number of sites — more sites = better |
+| `plot18` | Risk score validation - histogram + calibration curve |
+| `plot19` | Success rate by number of sites - more sites = better |
 
 ### Interactive Dashboard 
 An interactive dashboard that toggles with numbers of major features and gives an estimate of what the prediction could be was created that can be found as "dashboard.html". 
