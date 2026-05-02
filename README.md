@@ -44,15 +44,6 @@ make test
 
 23 tests covering age parsing, criteria counting, data file integrity, and target variable validation.
 
-### Interactive Dashboard
-
-```bash
-python -m http.server 8000
-# Open http://localhost:8000/dashboard.html in your browser
-```
-
-The dashboard uses the real exported Decision Tree model to make predictions.
-
 ### How to Contribute
 
 1. Fork this repository
@@ -74,15 +65,13 @@ Clinical trial enrollment failure is one of the pharmaceutical industry's most e
 
 ### What This Project Actually Predicts
 
-This project does **not** predict whether a drug will work or whether a trial will produce positive clinical results — that depends on biology, chemistry, and factors no model can forecast from protocol data alone.
+This project does **not** predict whether a drug will work or whether a trial will produce positive clinical results (that depends on biology, chemistry, and factors no model can forecast from protocol data alone).
 
-Instead, it predicts something more operational: **will this trial recruit enough patients?** Specifically, will it achieve at least 80% of the enrollment expected for a trial of its type?
+Instead, it predicts the operational aspect: **will this trial recruit enough patients?** Specifically, if it will achieve at least 80% of the enrollment expected for a trial of its type?
 
-### "Can't you just multiply num_sites × enrollment_per_site?"
+While on the surface, yes — enrollment = sites × patients_per_site. But the real question isn't arithmetic. The real question is: **before a trial starts, given only what you know about the protocol design, can you predict whether it will struggle to recruit?**
 
-On the surface, yes — enrollment = sites × patients_per_site. But the real question isn't arithmetic. The real question is: **before a trial starts, given only what you know about the protocol design, can you predict whether it will struggle to recruit?**
-
-The challenge is that `enrollment_per_site` isn't known in advance — it's the outcome. A trial designer decides the number of sites, the eligibility criteria, the phase, the therapeutic area, and the study duration. They do NOT know how many patients each site will actually recruit. That depends on dozens of factors: how restrictive the eligibility criteria are (more exclusion criteria = fewer eligible patients), what disease is being studied (schizophrenia trials struggle at 52% success vs. HIV at 65%), how many competing trials are running at the same sites, the local patient population, the site's recruitment experience, and so on.
+The challenge is that `enrollment_per_site` isn't known in advance but is the outcome. A trial designer decides the number of sites, the eligibility criteria, the phase, the therapeutic area, and the study duration. They do NOT know how many patients each site will actually recruit. That depends on dozens of factors: how restrictive the eligibility criteria are (more exclusion criteria = fewer eligible patients), what disease is being studied (schizophrenia trials struggle at 52% success vs. HIV at 65%), how many competing trials are running at the same sites, the local patient population, the site's recruitment experience, and so on.
 
 This model learns the complex interaction between all of these protocol-level decisions and predicts the likely outcome. It tells a trial designer: "based on 9,517 historical trials with similar protocol characteristics, here's how likely your trial is to meet enrollment targets." That's something a simple multiplication can't do.
 
@@ -132,7 +121,7 @@ Trial sponsors typically invest $10M–$50M before the first patient is enrolled
 
 ## Data Collection
 
-**Source:** [AACT Database](https://aact.ctti-clinicaltrials.org/downloads) — a publicly available relational database maintained by the Clinical Trials Transformation Initiative, mirroring all data from ClinicalTrials.gov.
+**Source:** [AACT Database](https://aact.ctti-clinicaltrials.org/downloads) — a publicly available relational database maintained by the Clinical Trials Transformation Initiative, mirroring all data from ClinicalTrials.gov. (contains key factors like dates of the study, site, number of enrollees, countries, disease, etc).
 
 **Method:** Downloaded the "Flat Text Files" export (~2.2 GB). Script `load_data.py` reads 7 tables (studies, eligibilities, facilities, sponsors, design_groups, interventions, conditions), filters them, and merges by trial ID (`nct_id`).
 
@@ -147,7 +136,7 @@ Trial sponsors typically invest $10M–$50M before the first patient is enrolled
 | 4 | Actual enrollment reported and > 0 | 55,446 |
 | 5 | Random sample for development | 10,000 |
 
-We filter to completed Phase 2/3 interventional trials because these are the large-scale trials where enrollment failure actually costs millions. Phase 1 trials are tiny safety studies (10-30 people) where enrollment is rarely a problem.
+We filter to completed Phase 2/3 interventional trials because these are the large scale trials where enrollment failure actually costs millions. Phase 1 trials are tiny safety studies (10-30 people) where enrollment is rarely a problem.
 
 ---
 
@@ -215,7 +204,7 @@ All models evaluated with 80/20 stratified train/test split + 5-fold cross-valid
 
 ### Advanced Models (`advanced_models.py`)
 
-**Regression** — predicting log(enrollment) as a continuous value:
+**Regression** predicting log(enrollment) as a continuous value:
 
 | Model | R² | RMSE |
 |-------|----|------|
@@ -225,7 +214,7 @@ All models evaluated with 80/20 stratified train/test split + 5-fold cross-valid
 
 R² = 0.56 means protocol features explain 56% of enrollment variance. The remaining 44% depends on unmeasured factors like recruitment budget and site experience.
 
-**Neural Network** — MLP classifier with ReLU activation and Adam optimizer:
+**Neural Network** MLP classifier with ReLU activation and Adam optimizer:
 
 | Architecture | Accuracy | F1 |
 |-------------|----------|----|
@@ -233,7 +222,7 @@ R² = 0.56 means protocol features explain 56% of enrollment variance. The remai
 | MLP (128, 64) | 87.9% | 0.898 |
 | MLP (128, 64, 32) | 86.9% | 0.890 |
 
-Simplest architecture performed best — tabular data doesn't benefit from deep networks.
+Simplest architecture performed best as tabular data doesn't benefit from deep networks.
 
 **Hyperparameter Tuning** — GridSearchCV with 5-fold CV:
 
