@@ -1,8 +1,5 @@
 # Predicting Clinical Trial Enrollment Success
 
-> **Video Presentation:** https://youtu.be/p0gN_-8bc9o
-
----
 
 ## How to Build and Run
 
